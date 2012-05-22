@@ -1,4 +1,3 @@
-
 # Introduction
 pQuery is a PHP 5.2+ utility library for writing and executing PDO
 queries via a fluent interface; similar to how jQuery accesses the
@@ -54,11 +53,11 @@ but also good at building complex dynamic queries.
 
 You can also avoid large try/catch blocks by:
 
-$findOrder = .. long query here ..
-
-try {
-   $order = $findOrder->query();
-}
+	$findOrder = .. long query here ..
+	
+	try {
+	   $order = $findOrder->query();
+	}
 
 All the operations so far have implicitly been SELECT statements for
 all columns, eg. 'SELECT * FROM foo' - however pquery has syntax support
