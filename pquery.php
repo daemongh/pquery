@@ -2,29 +2,10 @@
 
 function pquery() {
 	$args = func_get_args();
-	$params = array();
+	$params = pquery::$base;
 	
 	foreach ($args as $arg) {
-		if ($arg instanceof pdo) {
-			$arg->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$arg->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-			$params['pdo'] = $arg;
-			continue;
-		}
-		
-		if (is_object($arg)) {
-			$arg = (array)$arg;
-		}
-		
-		if (is_array($arg)) {
-			foreach ($arg as $key => $value) {
-				$params[$key] = $value;
-			}
-		}
-		
-		if (is_string($arg)) {
-			$params['table'] = $arg;
-		}
+		pquery::configure($arg, $params);
 	}
 	
 	return new pquery($params);
@@ -168,6 +149,8 @@ class pquery {
 		foreach ($this->update as $update) {
 			$this->resolveUpdateClause($update, $sql, $queryParams);
 		}
+		
+		$sql[] = ';';
 	}
 	
 	protected function resolveUpdateClause($update, &$sql, &$queryParams) {
@@ -236,8 +219,34 @@ class pquery {
 		}
 	}
 	
-	protected function resolveOrder($order, &$sql, &$queryParams) {
+	protected function resolveOrder(&$sql, &$queryParams) {
+		$sep = 0;
 		
+		foreach ($this->order as $call) {
+			$sort = 'ASC';
+			
+			foreach ($call as $arg) {
+				if ($this->resolveOperator($arg, $sort, self::$orderDirections)) {
+					continue;
+				}
+				
+				if (!$sep) {
+					$sql[] = 'ORDER BY';
+				}
+				
+				if ($sep) {
+					$sql[] = $sort;
+					$sql[] = ',';
+				}
+				
+				$sql[] = $this->resolveKey($arg);
+				$sep = 1;
+			}
+		}
+		
+		if ($sep) {
+			$sql[] = $sort;
+		}
 	}
 	
 	protected function resolveLimit(&$sql, &$queryParams) {
@@ -342,16 +351,20 @@ class pquery {
 		$sql[] = ')';
 	}
 	
-	protected function resolveOperator($key, &$op) {
-		if (array_key_exists($key, self::$operators)) {
-			$op = self::$operators[$key];
+	protected function resolveOperator($key, &$op, $from=null) {
+		if (!isset($from)) {
+			$from = self::$operators;
+		}
+		
+		if (array_key_exists($key, $from)) {
+			$op = $from[$key];
 			return true;
 		}
 		
 		$key = strtoupper($key);
 		
-		if (array_key_exists($key, self::$operators)) {
-			$op = self::$operators[$key];
+		if (array_key_exists($key, $from)) {
+			$op = $from[$key];
 			return true;
 		}
 		
@@ -422,6 +435,45 @@ class pquery {
 		'||' => 'OR',
 		'XOR' => 'XOR'
 	);
+	
+	public static $orderDirections = array(
+		'DESC' => 'DESC',
+		'ASC' => 'ASC'
+	);
+	
+	public static $base = array();
+	
+	public static function base() {
+		foreach (func_get_args() as $arg) {
+			self::configure($arg, self::$base);
+		}
+	}
+	
+	public static function configure($arg, &$params) {
+		if ($arg instanceof pdo) {
+			$arg->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$arg->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+			$params['pdo'] = $arg;
+			return;
+		}
+		
+		if (is_object($arg)) {
+			$arg = (array)$arg;
+		}
+		
+		if (is_array($arg)) {
+			foreach ($arg as $key => $value) {
+				$params[$key] = $value;
+			}
+			
+			return;
+		}
+		
+		if (is_string($arg)) {
+			$params['table'] = $arg;
+		}
+	}
 }
+
 
 
