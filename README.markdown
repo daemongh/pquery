@@ -1,4 +1,3 @@
-
 # Introduction
 pQuery is a PHP 5.2+ utility library for writing and executing PDO
 queries via a fluent interface; similar to how jQuery accesses the
