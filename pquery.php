@@ -115,13 +115,17 @@ class pquery {
 		$sql = implode(' ', $this->tokenize($queryParams, $sql));
 		
 		foreach ($this->pdo as $pdo) {
-			try {
-				$statement = $pdo->prepare($sql);
-				$statement->execute($queryParams);
-			} catch (PDOException $e) {
-				echo $sql;
-				throw $e;
+			$statement = $pdo->prepare($sql);
+			
+			if (!$statement) {
+				throw new PDOException("Unable to prepare SQL");
 			}
+			
+			$statement->execute($queryParams);
+		}
+		
+		if (empty($statement)) {
+			throw new PDOException("No PDO object to use");
 		}
 		
 		return $statement;
