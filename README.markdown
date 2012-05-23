@@ -12,6 +12,7 @@ descriptors, conditions, etc.
 * API - https://github.com/krisives/pquery/wiki/API
 * FAQ - https://github.com/krisives/pquery/wiki/FAQ
 * Roadmap - https://github.com/krisives/pquery/wiki/Roadmap
+* License - Easy to understand [MIT style license](https://github.com/krisives/pquery/blob/master/LICENSE.txt)
 
 # Basic Usage
 To get an instance you use a global factory method:
