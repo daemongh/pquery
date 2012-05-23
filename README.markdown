@@ -72,11 +72,11 @@ for:
 Without syntax support you can use the query() method passing strings
 to be used as SQL text and arrays to bind data:
 
-$statement = $orders->query("SHOW COLUMNS LIKE", array("%$search%"));
+	$statement = $orders->query("SHOW COLUMNS LIKE", array("%$search%"));
 
 Each argument will be joined with a space, so the example would become:
 
-SHOW COLUMNS LIKE ?
+	SHOW COLUMNS LIKE ?
 
 And a single paramter would be passed to the prepared statement. If you
 want to pass a parameter without the ? being put in it's place you can
