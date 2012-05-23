@@ -8,6 +8,11 @@ Most methods are chainable and return a new context. This allows
 you to build queries in pieces, re-using common JOINs, field
 descriptors, conditions, etc.
 
+# Quick Links
+* API - https://github.com/krisives/pquery/wiki/API
+* FAQ - https://github.com/krisives/pquery/wiki/FAQ
+* Roadmap - https://github.com/krisives/pquery/wiki/Roadmap
+
 # Basic Usage
 To get an instance you use a global factory method:
 
@@ -79,7 +84,7 @@ Each argument will be joined with a space, so the example would become:
 	SHOW COLUMNS LIKE ?
 
 And a single paramter would be passed to the prepared statement. If you
-want to pass a parameter without the ? being put in it's place you can
+want to pass a parameter without the `?` being put in it's place you can
 use named keys:
 
 	$orders->query(
