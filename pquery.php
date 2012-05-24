@@ -133,6 +133,14 @@ class pquery {
 		return $statement;
 	}
 	
+	public function fetch() {
+		return $this->query()->fetch();
+	}
+	
+	public function fetchAll() {
+		return $this->query()->fetchAll();
+	}
+	
 	protected function resolveSelect(&$sql, &$queryParams) {
 		$sql[] = 'SELECT';
 		$fields = $this->select;
