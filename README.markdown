@@ -9,7 +9,7 @@ you to build queries in pieces, re-using common JOINs, field
 descriptors, conditions, etc.
 
 # Features
-* ~500 lines of code
+* ~500 lines of code - Read and [all of the code](https://github.com/krisives/pquery/blob/master/pquery.php) in one sitting
 * Syntax support for many SQL keywords means you write less code
 * Chainable [function interface](https://github.com/krisives/pquery/wiki/API)
 * Order independent
