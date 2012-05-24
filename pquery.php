@@ -66,6 +66,8 @@ class pquery {
 			$queryParams = array();
 		}
 		
+		$cmd = null;
+		
 		foreach (array('select', 'update', 'insert', 'delete', 'create') as $key) {
 			if (array_key_exists($key, $lookup)) {
 				if (isset($cmd)) { throw new Exception("Cannot mix '$key' and '$cmd'"); }
@@ -85,7 +87,7 @@ class pquery {
 			if (is_string($resolver)) {
 				$this->$resolver($sql, $queryParams);
 			} else {
-				$resolver($sql, $queryParams);
+				$resolver($this, $sql, $queryParams);
 			}
 		}
 		
@@ -153,8 +155,6 @@ class pquery {
 		foreach ($this->update as $update) {
 			$this->resolveUpdateClause($update, $sql, $queryParams);
 		}
-		
-		$sql[] = ';';
 	}
 	
 	protected function resolveUpdateClause($update, &$sql, &$queryParams) {
@@ -184,43 +184,55 @@ class pquery {
 		$localTable = $this->resolveKey($this->table);
 		
 		foreach ($joins as $join) {
-			$foreignTable = $this->resolveKey($join[0]);
-			$sql[] = 'LEFT JOIN';
-			$sql[] = $foreignTable;
-			$sql[] = 'ON';
-			
-			$on = $join[1];
-			
-			if (is_string($on)) {
-				$on = $this->resolveKey($on);
-				$sql[] = "($localTable.$on = $foreignTable.$on)";
-				continue;
+			$this->resolveJoinClause($localTable, $join, $sql, $queryParams);
+		}
+	}
+	
+	protected function resolveJoinClause($localTable, $join, &$sql, &$queryParams) {
+		if (is_array($join[0])) {
+			foreach ($join[0] as $foreignTable => $on) {
+				$this->resolveJoinClause($localTable, array($foreignTable, $on), $sql, $queryParams);
 			}
 			
-			$op = 'AND';
-			$sql[] = '(';
-			$sep = 0;
-			
-			foreach ($on as $localKey => $foreignKey) {
-				if (is_numeric($localKey)) {
-					if ($this->resolveOperator($value, $op)) {
-						continue;
-					}
-					
-					if ($sep) { $sql[] = $op; }
-					$sql[] = $value;
-					$sep = 1;
+			return;
+		}
+		
+		$foreignTable = $this->resolveKey($join[0]);
+		$sql[] = 'LEFT JOIN';
+		$sql[] = $foreignTable;
+		$sql[] = 'ON';
+		
+		$on = $join[1];
+		
+		if (is_string($on)) {
+			$on = $this->resolveKey($on);
+			$sql[] = "($localTable.$on = $foreignTable.$on)";
+			return;
+		}
+		
+		$op = 'AND';
+		$sql[] = '(';
+		$sep = 0;
+		
+		foreach ($on as $localKey => $foreignKey) {
+			if (is_numeric($localKey)) {
+				if ($this->resolveOperator($value, $op)) {
 					continue;
 				}
 				
 				if ($sep) { $sql[] = $op; }
-				$foreignKey = $this->resolveKey($foreignKey);
-				$sql[] = "$localTable.$localKey = $foreignTable.$foreignKey";
+				$sql[] = $value;
 				$sep = 1;
+				continue;
 			}
 			
-			$sql[] = ')';
+			if ($sep) { $sql[] = $op; }
+			$foreignKey = $this->resolveKey($foreignKey);
+			$sql[] = "$localTable.$localKey = $foreignTable.$foreignKey";
+			$sep = 1;
 		}
+		
+		$sql[] = ')';
 	}
 	
 	protected function resolveOrder(&$sql, &$queryParams) {
@@ -379,8 +391,12 @@ class pquery {
 		if (is_array($value)) {
 			$array = $value;
 			
-			foreach ($array as $index => $value) {
-				$array[$index] = $this->resolveKey($value);
+			foreach ($array as $key => $value) {
+				if (is_numeric($key)) {
+					$array[$key] = $this->resolveKey($value);
+				} else {
+					$array[$key] = $this->resolveKey($value)." AS `$key`";
+				}
 			}
 			
 			return implode(',', $array);
@@ -417,6 +433,11 @@ class pquery {
 		}
 		
 		$sql[] = ')';
+	}
+	
+	public function resolveDelete(&$sql, &$queryParams) {
+		$sql[] = 'DELETE';
+		$sql[] = $this->resolveKey($this->table);
 	}
 	
 	public static $resolvers = array(

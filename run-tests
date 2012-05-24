@@ -1,0 +1,12 @@
+#!/usr/bin/php5
+<?
+
+passthru("rm tests/*.php tests/*.diff tests/*.log tests/*.exp tests/*.out");
+passthru("pear run-tests tests/*.phpt");
+
+foreach (glob("tests/*.diff") as $file) {
+	$contents = @trim(file_get_contents($file));
+	if ($contents == '') { continue; }
+	$log = preg_replace('#\.diff$#', '.log', $file);
+	echo "\n", $log, ":\n", file_get_contents($log), "\n";
+}

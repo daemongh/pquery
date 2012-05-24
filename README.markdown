@@ -8,6 +8,15 @@ Most methods are chainable and return a new context. This allows
 you to build queries in pieces, re-using common JOINs, field
 descriptors, conditions, etc.
 
+# Features
+* ~500 lines of code
+* Syntax for many SQL means you write less code
+* Chainable function interface
+* Order independent
+* Queries as objects
+* Get SQL for non-PDO and debugging (via __toString or tokenize)
+* Easily extendable
+
 # Quick Links
 * API - https://github.com/krisives/pquery/wiki/API
 * FAQ - https://github.com/krisives/pquery/wiki/FAQ
