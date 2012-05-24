@@ -10,12 +10,13 @@ descriptors, conditions, etc.
 
 # Features
 * ~500 lines of code
-* Syntax for many SQL means you write less code
-* Chainable function interface
+* Syntax support for many SQL keywords means you write less code
+* Chainable [function interface](https://github.com/krisives/pquery/wiki/API)
 * Order independent
 * Queries as objects
 * Get SQL for non-PDO and debugging (via __toString or tokenize)
-* Easily extendable
+* [Easily extendable](https://github.com/krisives/pquery/wiki/Extend)
+* [Unit tested](https://github.com/krisives/pquery/wiki/Testing)
 
 # Quick Links
 * API - https://github.com/krisives/pquery/wiki/API
